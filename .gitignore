@@ -1,0 +1,39 @@
+# phd_raw_data release clone.
+#
+# This directory is ALSO the research platform's working data directory: the live
+# database, its backups, journals, checkpoints, caches, model files and the raw
+# collection tree sit here untracked. None of them is part of the public release,
+# which is only: .gitignore, .gitattributes, README.md, raw.zip and enriched_data/.
+#
+# A second guard lives in .git/info/exclude of this clone: deny everything, then
+# allow the release files by name. It is kept there rather than here because the
+# parent research repository also reads this file, and an allow-list here would
+# make the release files visible to that repository.
+
+# Databases, journals, backups and checkpoints, at any depth.
+*.db
+*.db-*
+*.db.*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.backup
+*.bak
+*.bak.*
+*-wal
+*-shm
+*checkpoint*
+
+# Platform artifacts that are not part of the release.
+/raw/
+/synthetic/
+/chroma_data/
+/images/
+/llm_cache/
+/models/
+/test_samples/
+/.gitkeep
+/memgraph_demo_queries.json
+/memgraph_pagerank.json
+/synchronised_spikes.csv
+/translation_spot_check.json

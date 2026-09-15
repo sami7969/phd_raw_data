@@ -1,0 +1,632 @@
+[
+  {
+    "file": "tweets",
+    "column": "tweet_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1; 2B §5.1",
+    "description": "X post identifier. Primary key; joins comments.parent_tweet_id and bertopic_topic_assignments.tweet_id."
+  },
+  {
+    "file": "tweets",
+    "column": "author_id",
+    "type": "string (digits)",
+    "range": "platform user id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "X user identifier of the post's author; joins profiles.user_id for the 35 profiles."
+  },
+  {
+    "file": "tweets",
+    "column": "author_handle",
+    "type": "string",
+    "range": "X handle without @",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "Handle of the post's author. 159,060 posts belong to the 35 profiles; 477 posts by 342 other accounts are in the collected post table."
+  },
+  {
+    "file": "tweets",
+    "column": "in_reply_to_tweet_id",
+    "type": "string (digits) or null",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "147,502",
+    "defined_in": "2A §5.1",
+    "description": "Post id this post replies to, where the collected record carried one."
+  },
+  {
+    "file": "tweets",
+    "column": "created_at",
+    "type": "string (ISO 8601, UTC offset)",
+    "range": "timestamp",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.3",
+    "description": "Post creation time as collected. Temporal Consistency uses post timestamps."
+  },
+  {
+    "file": "tweets",
+    "column": "retweet_count",
+    "type": "integer",
+    "range": "[0, inf)",
+    "observed": "0 to 59227",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.4; 2A §3.3.2.5; 2B §3.2.1",
+    "description": "Retweet count stored with the collected record. Engagement Ratio, Retweet Velocity and Virality's reach component read it."
+  },
+  {
+    "file": "tweets",
+    "column": "like_count",
+    "type": "integer",
+    "range": "[0, inf)",
+    "observed": "0 to 150598",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.4",
+    "description": "Like count stored with the collected record; an Engagement Ratio input."
+  },
+  {
+    "file": "tweets",
+    "column": "reply_count",
+    "type": "integer",
+    "range": "[0, inf)",
+    "observed": "0 to 33898",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.4; 2B §3.3.1",
+    "description": "Reply count stored with the collected record; an Engagement Ratio input, and the reply counts Engagement Patterns reads."
+  },
+  {
+    "file": "tweets",
+    "column": "quote_count",
+    "type": "integer",
+    "range": "[0, inf)",
+    "observed": "0 to 4202",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.4",
+    "description": "Quote count stored with the collected record; an Engagement Ratio input."
+  },
+  {
+    "file": "tweets",
+    "column": "view_count",
+    "type": "integer",
+    "range": "[0, inf); 0 where no impression count was available",
+    "observed": "0 to 9989511",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.4; 2B §5.3",
+    "description": "Impression count stored with the collected record; the Engagement Ratio denominator is this count plus one. It is 0 on the 73,840 posts without an impression count, whose stored Engagement Ratio is therefore the unnormalized weighted interaction count."
+  },
+  {
+    "file": "tweets",
+    "column": "is_reply",
+    "type": "integer",
+    "range": "0 or 1",
+    "observed": "0 to 1",
+    "nulls": "0",
+    "defined_in": "2B §3.3.1",
+    "description": "Interaction-type flag as collected; Engagement Patterns' interaction diversity reads the interaction type of each post."
+  },
+  {
+    "file": "tweets",
+    "column": "is_quote",
+    "type": "integer",
+    "range": "0 or 1",
+    "observed": "0 to 1",
+    "nulls": "0",
+    "defined_in": "2B §3.3.1",
+    "description": "Interaction-type flag as collected (see is_reply)."
+  },
+  {
+    "file": "tweets",
+    "column": "is_retweet",
+    "type": "integer",
+    "range": "0 or 1",
+    "observed": "0 to 0",
+    "nulls": "0",
+    "defined_in": "2B §3.3.1",
+    "description": "Interaction-type flag as collected (see is_reply)."
+  },
+  {
+    "file": "tweets",
+    "column": "tweet_sentiment_score",
+    "type": "string (JSON array of 6 reals)",
+    "range": "each in [0, 1]",
+    "observed": "length 6",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.1",
+    "description": "Tweet Sentiment: positive, negative, neutral, mixed, ambiguity (stored as objective), sarcasm."
+  },
+  {
+    "file": "tweets",
+    "column": "tweet_emotion_score",
+    "type": "string (JSON array of 14 reals)",
+    "range": "each in [0, 1]",
+    "observed": "length 14",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.1",
+    "description": "Tweet Emotion: joy, sadness, anger, fear, disgust, surprise, trust, anticipation, love, optimism, pessimism, remorse, pride, curiosity. Not normalized."
+  },
+  {
+    "file": "tweets",
+    "column": "tweet_credibility_score",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.004285714285714285 to 1.0",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.3",
+    "description": "Tweet Credibility."
+  },
+  {
+    "file": "tweets",
+    "column": "cross_reference_score",
+    "type": "string (JSON array of 3 reals)",
+    "range": "each in [0, 1]",
+    "observed": "length 3",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.2",
+    "description": "Cross-Reference verdict vector: support, contradict, unverified."
+  },
+  {
+    "file": "tweets",
+    "column": "engagement_ratio",
+    "type": "real",
+    "range": "[0, inf)",
+    "observed": "0.0 to 202154.5",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.4; 2B §5.3",
+    "description": "Engagement Ratio: weighted interaction count over impressions plus one. Where no impression count was available (73,840 posts) the stored value is the unnormalized weighted interaction count."
+  },
+  {
+    "file": "tweets",
+    "column": "retweet_velocity",
+    "type": "real",
+    "range": "[0, inf)",
+    "observed": "0.0 to 316.5323424777606",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.5",
+    "description": "Retweet Velocity."
+  },
+  {
+    "file": "tweets",
+    "column": "virality_score",
+    "type": "real",
+    "range": "declared [0, 1]; deployed [0.200, 0.600]",
+    "observed": "0.2 to 0.6000000000000001",
+    "nulls": "0",
+    "defined_in": "2B §3.2.1; 2B §5.5",
+    "description": "Virality."
+  },
+  {
+    "file": "tweets",
+    "column": "tweet_influence_score",
+    "type": "real",
+    "range": "declared [0, 1]; deployed [0.070, 0.760]",
+    "observed": "0.06999999999999999 to 0.5616360800389444",
+    "nulls": "0",
+    "defined_in": "2B §3.2.2; 2B §5.5",
+    "description": "Per-Tweet Influence."
+  },
+  {
+    "file": "tweets",
+    "column": "cross_reference_confidence",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.0 to 0.3934693402873666",
+    "nulls": "0",
+    "defined_in": "2A §3.3.2.2",
+    "description": "Evidence-retrieval indicator attached to the Cross-Reference verdict: a retrieval-coverage measure, not a calibrated confidence in the verdict's correctness. Greater than zero on the 58,944 posts that received a verdict."
+  },
+  {
+    "file": "tweets",
+    "column": "avg_affirmation_score",
+    "type": "real",
+    "range": "[-1, 1]",
+    "observed": "-0.6277404837302871 to 0.7273130010422038",
+    "nulls": "0",
+    "defined_in": "2A §3.3.1.4; 2B §3.3.5",
+    "description": "Mean Comment Affirmation over the post's enriched comments. Profile Credibility's crowd component consumes the account mean of this value."
+  },
+  {
+    "file": "tweets",
+    "column": "mentioned_handles",
+    "type": "string (JSON array of handles)",
+    "range": "[] when none",
+    "observed": "136,175 empty",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Handles mentioned in the post, as collected. Self-Contradiction forms candidate pairs within mention-handle groups and weights pairs by mention-group membership."
+  },
+  {
+    "file": "tweets",
+    "column": "topic",
+    "type": "string or null",
+    "range": "one sentence",
+    "observed": "",
+    "nulls": "5,214",
+    "defined_in": "2B Table 3; 2B §3.3.3",
+    "description": "Tweet topic label: a MODEL-GENERATED one-sentence label derived from the post by a language model. It is not the post text. Temporal Consistency groups posts by it."
+  },
+  {
+    "file": "tweets",
+    "column": "stance_json",
+    "type": "string (JSON array of {entity, stance, confidence})",
+    "range": "stance support/against/neutral; confidence [0, 1]",
+    "observed": "36,583 empty",
+    "nulls": "0",
+    "defined_in": "2B Table 3; 2B §3.3.3",
+    "description": "Per-entity stance records. A small number of stored labels fall outside support/against/neutral; Temporal Consistency maps them to neutral."
+  },
+  {
+    "file": "tweets",
+    "column": "entities_json",
+    "type": "string (JSON array of {name, type, sub_type, party})",
+    "range": "entity records",
+    "observed": "38,115 empty",
+    "nulls": "0",
+    "defined_in": "2B Table 3; 2B §3.3.4",
+    "description": "Extracted named entities. Self-Contradiction weights a pair fully when its posts share an alias-resolved entity. Stored type labels are as extracted, including some outside the intended type list."
+  },
+  {
+    "file": "tweets",
+    "column": "toxicity",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.0 to 1.0",
+    "nulls": "0",
+    "defined_in": "2B Table 3; 2B §3.3.5",
+    "description": "Tweet-level toxicity. Profile Credibility consumes the account mean through two paths (content complement and crowd multiplier)."
+  },
+  {
+    "file": "comments",
+    "column": "comment_id",
+    "type": "string (digits)",
+    "range": "platform or synthetic comment id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "Comment identifier. Primary key."
+  },
+  {
+    "file": "comments",
+    "column": "parent_tweet_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "The post the comment belongs to; joins tweets.tweet_id (every exported comment has its parent in tweets)."
+  },
+  {
+    "file": "comments",
+    "column": "author_id",
+    "type": "string",
+    "range": "platform user id, or a synthetic id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "Identifier of the comment's author."
+  },
+  {
+    "file": "comments",
+    "column": "author_handle",
+    "type": "string",
+    "range": "X handle without @; syn_user_N for synthetic",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "Handle of the comment's author. Synthetic comments carry syn_user_N. 67 real comments carry an empty handle as collected."
+  },
+  {
+    "file": "comments",
+    "column": "is_synthetic",
+    "type": "integer",
+    "range": "0 or 1",
+    "observed": "0 to 1",
+    "nulls": "0",
+    "defined_in": "2A Ethics statement; 2A §5.5",
+    "description": "1 for the 741,582 comments generated with a large language model; 0 for real collected comments."
+  },
+  {
+    "file": "comments",
+    "column": "created_at",
+    "type": "string (ISO 8601, UTC offset) or null",
+    "range": "timestamp",
+    "observed": "",
+    "nulls": "741,582",
+    "defined_in": "2A §5.1",
+    "description": "Comment creation time as collected. NULL on every synthetic comment, and only there: synthetic comments carry no timestamp."
+  },
+  {
+    "file": "comments",
+    "column": "comment_sentiment_score",
+    "type": "string (JSON array of 6 reals)",
+    "range": "each in [0, 1]",
+    "observed": "length 6",
+    "nulls": "0",
+    "defined_in": "2A §3.3.1.1",
+    "description": "Comment Sentiment: positive, negative, neutral, mixed, ambiguity (stored as objective), sarcasm."
+  },
+  {
+    "file": "comments",
+    "column": "comment_emotion_score",
+    "type": "string (JSON array of 14 reals)",
+    "range": "each in [0, 1]",
+    "observed": "length 14",
+    "nulls": "0",
+    "defined_in": "2A §3.3.1.2",
+    "description": "Comment Emotion, same fourteen dimensions as tweet_emotion_score. Not normalized."
+  },
+  {
+    "file": "comments",
+    "column": "comment_affirmation_score",
+    "type": "real",
+    "range": "[-1, 1]",
+    "observed": "-0.8812177393084712 to 0.8550802473552193",
+    "nulls": "0",
+    "defined_in": "2A §3.3.1.4",
+    "description": "Comment Affirmation."
+  },
+  {
+    "file": "comments",
+    "column": "comment_direction_type",
+    "type": "string",
+    "range": "author, peer, external",
+    "observed": "values author, external, peer",
+    "nulls": "0",
+    "defined_in": "2A §3.3.1.3",
+    "description": "Comment Direction class."
+  },
+  {
+    "file": "comments",
+    "column": "image_sentiment",
+    "type": "string (JSON array of 5 reals) or null",
+    "range": "each in [0, 1]",
+    "observed": "length 5",
+    "nulls": "876,128",
+    "defined_in": "2A §3.3.1.1",
+    "description": "Image classification scores (sarcastic_meme, mockery, hostile, supportive, informational) behind the 729 comment sentiment vectors that carry an image-derived adjustment, the exception 2A §3.3.1.1 states. All 729 are synthetic comments. NULL elsewhere."
+  },
+  {
+    "file": "profiles",
+    "column": "user_id",
+    "type": "string (digits)",
+    "range": "platform user id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "X user identifier. Primary key; joins tweets.author_id."
+  },
+  {
+    "file": "profiles",
+    "column": "handle",
+    "type": "string",
+    "range": "X handle without @",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2A §5.1",
+    "description": "Handle of the profile."
+  },
+  {
+    "file": "profiles",
+    "column": "is_bot",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.0015392826002223654 to 0.2773127775450356",
+    "nulls": "0",
+    "defined_in": "2A §3.3.3.1",
+    "description": "Bot Likelihood."
+  },
+  {
+    "file": "profiles",
+    "column": "engagement_patterns_score",
+    "type": "real",
+    "range": "declared [0, 1]; deployed [0.0119, 0.9363]",
+    "observed": "0.125 to 0.8951859542009739",
+    "nulls": "0",
+    "defined_in": "2B §3.3.1; 2B §5.5",
+    "description": "Engagement Patterns."
+  },
+  {
+    "file": "profiles",
+    "column": "influence_score",
+    "type": "real",
+    "range": "declared [0, 0.79]; deployed [0.0373713, 0.687253]",
+    "observed": "0.0781065700982928 to 0.3944510985104028",
+    "nulls": "0",
+    "defined_in": "2B §3.3.2; 2B §5.5",
+    "description": "Profile Influence."
+  },
+  {
+    "file": "profiles",
+    "column": "consistency_score",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.8738977072310405 to 1.0",
+    "nulls": "0",
+    "defined_in": "2B §3.3.3",
+    "description": "Temporal Consistency."
+  },
+  {
+    "file": "profiles",
+    "column": "contradiction_score",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.0 to 0.09394301418904905",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Self-Contradiction."
+  },
+  {
+    "file": "profiles",
+    "column": "credibility_score",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.4201974117905082 to 0.6652351354942609",
+    "nulls": "0",
+    "defined_in": "2B §3.3.5",
+    "description": "Profile Credibility."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "alias_id",
+    "type": "integer",
+    "range": "row id",
+    "observed": "1 to 301",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Alias row identifier."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "surface_form",
+    "type": "string",
+    "range": "",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Surface form of an entity name as it occurs in extracted entities or stance records."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "surface_norm",
+    "type": "string",
+    "range": "",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Normalized surface form used for matching."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "canonical_id",
+    "type": "string",
+    "range": "",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3; 2B §3.3.3; 2B §3.3.4",
+    "description": "Canonical entity the surface form resolves to."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "canonical_name",
+    "type": "string",
+    "range": "",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Display name of the canonical entity."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "entity_type",
+    "type": "string",
+    "range": "PERSON, ORGANIZATION, PARTY, LOCATION",
+    "observed": "values LOCATION, ORGANIZATION, PARTY, PERSON",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Entity type of the canonical entity."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "sub_type",
+    "type": "string or null",
+    "range": "",
+    "observed": "values city, country, government, international, journalist, judiciary, military, politician, province, region",
+    "nulls": "188",
+    "defined_in": "2B Table 3",
+    "description": "Optional finer type."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "source",
+    "type": "string",
+    "range": "manual_seed, llm_cluster_qwen2.5_14b",
+    "observed": "values llm_cluster_qwen2.5_14b, manual_seed",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "How the mapping was proposed."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "confidence",
+    "type": "real",
+    "range": "[0, 1]",
+    "observed": "0.9 to 1.0",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Curator confidence in the mapping."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "review_status",
+    "type": "string",
+    "range": "approved, unreviewed, rejected",
+    "observed": "values approved",
+    "nulls": "0",
+    "defined_in": "2B §3.3.3",
+    "description": "Only rows with review_status = approved are applied by Temporal Consistency and contradiction weighting. Every one of the 297 published rows is approved."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "notes",
+    "type": "string",
+    "range": "",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Curator note (for example a mention rank)."
+  },
+  {
+    "file": "reference/entity_aliases",
+    "column": "created_at",
+    "type": "string (ISO 8601)",
+    "range": "timestamp",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "When the mapping row was created."
+  },
+  {
+    "file": "reference/bertopic_topic_assignments",
+    "column": "tweet_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Post identifier; joins tweets.tweet_id. Two posts of the tweet table have no assignment."
+  },
+  {
+    "file": "reference/bertopic_topic_assignments",
+    "column": "topic_id",
+    "type": "integer",
+    "range": "-1 (outlier) or 0..230",
+    "observed": "-1 to 230",
+    "nulls": "0",
+    "defined_in": "2B Table 3; 2B §3.3.2; 2B §3.3.4",
+    "description": "BERTopic group of the post. Profile Influence aggregates per group, and Self-Contradiction forms candidate pairs within groups."
+  },
+  {
+    "file": "reference/bertopic_topic_assignments",
+    "column": "probability",
+    "type": "real",
+    "range": "stored 0.0 on every row",
+    "observed": "0.0 to 0.0",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Assignment probability column as stored. It is 0.0 on all rows: no probability was recorded, and no field uses it."
+  },
+  {
+    "file": "reference/bertopic_topic_assignments",
+    "column": "assigned_at",
+    "type": "string (ISO 8601)",
+    "range": "timestamp",
+    "observed": "values 2026-05-04T10:24:25.877157+00:00",
+    "nulls": "0",
+    "defined_in": "2B Table 3",
+    "description": "Time the assignments were written (one run)."
+  }
+]

@@ -76,8 +76,8 @@
     "range": "[0, inf)",
     "observed": "0 to 33898",
     "nulls": "0",
-    "defined_in": "2A §3.3.2.4; 2B §3.3.1",
-    "description": "Reply count stored with the collected record; an Engagement Ratio input, and the reply counts Engagement Patterns reads."
+    "defined_in": "2A §3.3.2.4",
+    "description": "Reply count stored with the collected record; an Engagement Ratio input. Engagement Patterns does not read it: its outgoing reply count is the number of posts with `is_reply = 1`."
   },
   {
     "file": "tweets",

@@ -6,7 +6,7 @@
 "tweets","created_at","string (ISO 8601, UTC offset)","timestamp","","0","2B §3.3.3","Post creation time as collected. Temporal Consistency uses post timestamps."
 "tweets","retweet_count","integer","[0, inf)","0 to 59227","0","2A §3.3.2.4; 2A §3.3.2.5; 2B §3.2.1","Retweet count stored with the collected record. Engagement Ratio, Retweet Velocity and Virality's reach component read it."
 "tweets","like_count","integer","[0, inf)","0 to 150598","0","2A §3.3.2.4","Like count stored with the collected record; an Engagement Ratio input."
-"tweets","reply_count","integer","[0, inf)","0 to 33898","0","2A §3.3.2.4; 2B §3.3.1","Reply count stored with the collected record; an Engagement Ratio input, and the reply counts Engagement Patterns reads."
+"tweets","reply_count","integer","[0, inf)","0 to 33898","0","2A §3.3.2.4","Reply count stored with the collected record; an Engagement Ratio input. Engagement Patterns does not read it: its outgoing reply count is the number of posts with `is_reply = 1`."
 "tweets","quote_count","integer","[0, inf)","0 to 4202","0","2A §3.3.2.4","Quote count stored with the collected record; an Engagement Ratio input."
 "tweets","view_count","integer","[0, inf); 0 where no impression count was available","0 to 9989511","0","2A §3.3.2.4; 2B §5.3","Impression count stored with the collected record; the Engagement Ratio denominator is this count plus one. It is 0 on the 73,840 posts without an impression count, whose stored Engagement Ratio is therefore the unnormalized weighted interaction count."
 "tweets","is_reply","integer","0 or 1","0 to 1","0","2B §3.3.1","Interaction-type flag as collected; Engagement Patterns' interaction diversity reads the interaction type of each post."

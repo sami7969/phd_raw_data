@@ -8,7 +8,7 @@ The repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `raw.zip` | The raw collection archive: 275 JSON files of posts and comments for the 35 accounts, as returned by the collection service, including post text and author objects. The collection pipeline is described in Shah, Mahoto and Shaikh, *Integrating Third-Party Aggregators for X (aka Twitter) Data Collection: A Pipeline Architecture* (Journal of Information Science, under review). |
+| `raw.zip` | The raw collection archive: 275 JSON files of posts and comments for the 35 accounts, as returned by the collection service, including post text and author objects. The collection pipeline is described in Shah, Mahoto and Shaikh, *Integrating Third-Party Aggregators for X (aka Twitter) Data Collection: A Pipeline Architecture* (under review). |
 | `enriched_data/` | The enriched release (this README's subject): record identifiers plus the enrichment values that Papers 2A and 2B specify and evaluate, plus the supporting inputs and reference tables needed to re-derive them. It contains no post or comment text. |
 
 The implementation code is not publicly released.
@@ -40,7 +40,9 @@ Recomputable from the published columns (7 of the 18 catalog fields):
   as the specification sets them.
 - **Per-Tweet Influence** (2B §3.2.2): the published Engagement Ratio, Retweet Velocity and Virality,
   with its author-standing term supplied as zero.
-- **Engagement Patterns** (2B §3.3.1): post timestamps, interaction-type flags and reply counts. This
+- **Engagement Patterns** (2B §3.3.1): post timestamps and interaction-type flags; its outgoing reply
+  count is the number of posts with `is_reply = 1`, and incoming replies enter as zero. It does not read
+  `reply_count`. This
   holds for 22 of the 35 accounts. For the other 13, the stored value was computed over a seeded sample
   of 2,000 posts whose membership was not persisted.
 - **Profile Influence** (2B §3.3.2): the published Per-Tweet Influence, Engagement Patterns and
@@ -184,7 +186,7 @@ Also published as `enriched_data/data_dictionary.csv` and `.json`. Sections: **2
 | `created_at` | string (ISO 8601, UTC offset) | timestamp |  | 0 | 2B §3.3.3 | Post creation time as collected. Temporal Consistency uses post timestamps. |
 | `retweet_count` | integer | [0, inf) | 0 to 59227 | 0 | 2A §3.3.2.4; 2A §3.3.2.5; 2B §3.2.1 | Retweet count stored with the collected record. Engagement Ratio, Retweet Velocity and Virality's reach component read it. |
 | `like_count` | integer | [0, inf) | 0 to 150598 | 0 | 2A §3.3.2.4 | Like count stored with the collected record; an Engagement Ratio input. |
-| `reply_count` | integer | [0, inf) | 0 to 33898 | 0 | 2A §3.3.2.4; 2B §3.3.1 | Reply count stored with the collected record; an Engagement Ratio input, and the reply counts Engagement Patterns reads. |
+| `reply_count` | integer | [0, inf) | 0 to 33898 | 0 | 2A §3.3.2.4 | Reply count stored with the collected record; an Engagement Ratio input. Engagement Patterns does not read it: its outgoing reply count is the number of posts with `is_reply = 1`. |
 | `quote_count` | integer | [0, inf) | 0 to 4202 | 0 | 2A §3.3.2.4 | Quote count stored with the collected record; an Engagement Ratio input. |
 | `view_count` | integer | [0, inf); 0 where no impression count was available | 0 to 9989511 | 0 | 2A §3.3.2.4; 2B §5.3 | Impression count stored with the collected record; the Engagement Ratio denominator is this count plus one. It is 0 on the 73,840 posts without an impression count, whose stored Engagement Ratio is therefore the unnormalized weighted interaction count. |
 | `is_reply` | integer | 0 or 1 | 0 to 1 | 0 | 2B §3.3.1 | Interaction-type flag as collected; Engagement Patterns' interaction diversity reads the interaction type of each post. |

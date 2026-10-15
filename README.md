@@ -33,7 +33,7 @@ below names, for each column, the section of the paper that defines it.
 defining section states. Where a stored value itself cannot be rebuilt from persisted inputs, Paper 2B's
 reproducibility table (Section 5.2) says so, and that limit is repeated here.
 
-Recomputable from the published columns (7 of the 18 catalog fields):
+Recomputable from the published columns (8 of the 18 catalog fields):
 - **Engagement Ratio** (2A §3.3.2.4): the like, retweet, quote and reply counts, with the impression
   count as denominator.
 - **Virality** (2B §3.2.1): the retweet count, with the components the deployment could not observe held
@@ -42,20 +42,33 @@ Recomputable from the published columns (7 of the 18 catalog fields):
   with its author-standing term supplied as zero.
 - **Engagement Patterns** (2B §3.3.1): post timestamps and interaction-type flags; its outgoing reply
   count is the number of posts with `is_reply = 1`, and incoming replies enter as zero. It does not read
-  `reply_count`. This
-  holds for 22 of the 35 accounts. For the other 13, the stored value was computed over a seeded sample
-  of 2,000 posts whose membership was not persisted.
+  `reply_count`. This holds for 28 of the 35 accounts. For 13 accounts the stored value was computed
+  over a seeded sample of 2,000 posts, whose membership the run did not persist. For 6 of them
+  (HamidMirPAK, HassanNisar, MoeedNj, OryaMaqboolJan, javeednusrat, mubasherlucman) no two posts share
+  a `created_at`, so the sample is fully determined by the published timestamps; it is regenerated
+  and published in `eps_pi_samples/sampled_posts_2000`, and replaying the field over it from this
+  release alone reproduces every stored value exactly. For the other 7, tied `created_at` values
+  leave the draw order unrecorded, so the sample cannot be regenerated.
 - **Profile Influence** (2B §3.3.2): the published Per-Tweet Influence, Engagement Patterns and
   Cross-Reference values and the BERTopic assignments, with its network centrality input supplied as
-  zero. This holds for 21 of the 35 accounts: not for the same 13 sampled accounts, nor for one account
-  two of whose posts have no topic assignment.
+  zero. This holds for 27 of the 35 accounts, including the same 6 sampled accounts over their
+  published samples (exact): not for the other 7 sampled accounts, nor for one account two of whose
+  posts have no topic assignment.
 - **Temporal Consistency** (2B §3.3.3): the topic labels, stance records, post timestamps and the
   approved alias rows.
+- **Self-Contradiction** (2B §3.3.4): for all 35 accounts, from the retained pairs in
+  `self_contradiction/self_contradiction_pairs` (each pair's weight `w_i` and contradiction probability
+  `p_i`) and each account's enriched post count `N` in `self_contradiction/self_contradiction_accounts`:
+  SC = clamp((Σ w_i p_i / Σ w_i)(Σ w_i / N), 0, 1), summed in the published row order, reproduces every
+  stored `contradiction_score` exactly. This recomputes the stored value from the retained pairs; it
+  does not rebuild the pairs, which were selected by natural language inference and language-model
+  verification over translated text that is not published. For the 17 accounts with more than 1,000
+  posts, `self_contradiction/sampled_posts` lists the 1,000 posts candidate construction drew from.
 - **Profile Credibility** (2B §3.3.5): the published Tweet Credibility, Cross-Reference support, Bot
   Likelihood, per-post mean Comment Affirmation, Toxicity, Temporal Consistency and Self-Contradiction
   values.
 
-Not recomputable from the enriched release (11 of the 18):
+Not recomputable from the enriched release (10 of the 18):
 - **Retweet Velocity** (2A §3.3.2.5): it divides the retweet count by the post's age at the moment
   enrichment ran, and that per-post enrichment time is not published.
 - **Comment Direction** (2A §3.3.1.3): it reads the reply target recorded on each comment. That is the
@@ -63,14 +76,56 @@ Not recomputable from the enriched release (11 of the 18):
 - **The text- and model-based fields**, which apply models or rules to post or comment text that the
   enriched release does not contain:
   - Comment Sentiment, Comment Emotion and Comment Affirmation;
-  - Tweet Sentiment, Tweet Emotion, Cross-Reference and Tweet Credibility;
-  - Self-Contradiction, whose candidate pairs are verified by natural language inference and a
-    language model.
+  - Tweet Sentiment, Tweet Emotion, Cross-Reference and Tweet Credibility.
 - **Bot Likelihood** (2A §3.3.3.1), which is computed from eight behavioral signals that were not
   retained.
 
-The raw collected records, including text, are in `raw.zip`. Translated text and intermediate model
-outputs are not published.
+The raw collected records, including text, are in `raw.zip`. Translated text is not published, and
+neither are intermediate model outputs, except the contradiction probability of each retained
+Self-Contradiction pair.
+
+### Input map for the seven behavioral fields (Paper 2B)
+
+Each input of each behavioral field, its kind, and the file and column that carry it. Kinds:
+**platform metadata** (collected with the record), **foundational field** (Paper 2A), **behavioral
+field** (Paper 2B, consumed by a later field), **supporting measurement** (Paper 2B Table 3), and
+**reference resource** (a separate table), and **intermediate model output** (the BERTopic grouping, Paper 2B Table 3). Files are under `enriched_data/`.
+
+| Field | Input | Kind | File : column |
+|---|---|---|---|
+| Virality | retweet count | platform metadata | `tweets` : `retweet_count` |
+| Per-Tweet Influence | Engagement Ratio | foundational field | `tweets` : `engagement_ratio` |
+| | Retweet Velocity | foundational field | `tweets` : `retweet_velocity` |
+| | Virality | behavioral field | `tweets` : `virality_score` |
+| Engagement Patterns | post timestamps | platform metadata | `tweets` : `created_at` |
+| | seeded 2,000-post sample (6 of the 13 sampled accounts) | — | `eps_pi_samples/sampled_posts_2000` : `tweet_id` |
+| | interaction type (outgoing replies are the posts with `is_reply = 1`) | platform metadata | `tweets` : `is_reply`, `is_quote`, `is_retweet` |
+| Profile Influence | Per-Tweet Influence | behavioral field | `tweets` : `tweet_influence_score` |
+| | Cross-Reference support (polarization proxy) | foundational field | `tweets` : `cross_reference_score` |
+| | BERTopic grouping | intermediate model output | `reference/bertopic_topic_assignments` : `topic_id` |
+| | Engagement Patterns | behavioral field | `profiles` : `engagement_patterns_score` |
+| | seeded 2,000-post sample (the same 6 accounts) | — | `eps_pi_samples/sampled_posts_2000` : `tweet_id` |
+| Temporal Consistency | topic label | supporting measurement | `tweets` : `topic` |
+| | entity stance | supporting measurement | `tweets` : `stance_json` |
+| | post timestamps | platform metadata | `tweets` : `created_at` |
+| | entity aliases (approved rows) | reference resource | `reference/entity_aliases` : `surface_norm`, `canonical_id`, `review_status` |
+| Self-Contradiction | retained pairs, weight and contradiction probability | behavioral field (intermediate) | `self_contradiction/self_contradiction_pairs` : `tweet_a_id`, `tweet_b_id`, `w_i`, `p_i` |
+| | enriched post count (denominator) | platform metadata | `self_contradiction/self_contradiction_accounts` : `N` (equals the account's rows in `tweets`) |
+| | candidate groups and pair weighting | platform metadata; supporting measurement; intermediate model output; reference resource | `tweets` : `mentioned_handles`, `entities_json`; `reference/bertopic_topic_assignments` : `topic_id`; `reference/entity_aliases` |
+| | seeded sample (17 accounts) | — | `self_contradiction/sampled_posts` : `tweet_id` |
+| Profile Credibility | Tweet Credibility | foundational field | `tweets` : `tweet_credibility_score` |
+| | Cross-Reference support | foundational field | `tweets` : `cross_reference_score` |
+| | Comment Affirmation, per-post mean | foundational field | `tweets` : `avg_affirmation_score` |
+| | toxicity | supporting measurement | `tweets` : `toxicity` |
+| | Temporal Consistency, Self-Contradiction | behavioral field | `profiles` : `consistency_score`, `contradiction_score` |
+| | Bot Likelihood | foundational field | `profiles` : `is_bot` |
+
+Inputs the specifications name that the deployment supplied as zero (Virality's cascade depth,
+branching and half-life; Per-Tweet Influence's author standing; Engagement Patterns' incoming replies;
+Profile Influence's network centrality) have no column. Not published: the membership of the 2,000-post
+seeded samples over which Engagement Patterns and Profile Influence were computed for 7 accounts (the
+samples of the other 6 sampled accounts are in `eps_pi_samples/sampled_posts_2000`); the topic
+assignment of two posts of one account; and the translated post text.
 
 **One caution on `topic`.** The `topic` column in `tweets` is a model-generated one-sentence label that a
 language model derived from each post. It is not the post text, and it should not be read or quoted as
@@ -83,6 +138,9 @@ what the account wrote.
 - `entity_aliases.surface_form` / `surface_norm` resolve the entity names found in `tweets.entities_json`
   and `tweets.stance_json` to `canonical_id`; only rows with `review_status = approved` are applied
   (all 297 published rows are approved)
+- `self_contradiction_pairs.tweet_a_id` / `tweet_b_id` = `tweets.tweet_id`; `sampled_posts.tweet_id` = `tweets.tweet_id`;
+  `self_contradiction_pairs.handle` = `self_contradiction_accounts.handle` = `profiles.handle`
+- `eps_pi_samples/sampled_posts_2000.tweet_id` = `tweets.tweet_id`; its `handle` = `profiles.handle`
 
 Identifiers are strings, because X ids exceed the range a double-precision number holds exactly.
 
@@ -110,9 +168,17 @@ synthetic subsets separately and measures their fidelity (Section 5.5).
 | `enriched_data/reference/entity_aliases.json` | 297 | 12 | JSON | 105.8 KB | as is |
 | `enriched_data/reference/bertopic_topic_assignments.csv` | 159,535 | 4 | CSV | 10.8 MB | as is |
 | `enriched_data/reference/bertopic_topic_assignments.json` | 159,535 | 4 | JSON | 18.7 MB | as is |
+| `enriched_data/self_contradiction/self_contradiction_pairs.csv` | 513 | 10 | CSV | 65.1 KB | as is |
+| `enriched_data/self_contradiction/self_contradiction_pairs.json` | 513 | 10 | JSON | 119.1 KB | as is |
+| `enriched_data/self_contradiction/self_contradiction_accounts.csv` | 35 | 6 | CSV | 1.8 KB | as is |
+| `enriched_data/self_contradiction/self_contradiction_accounts.json` | 35 | 6 | JSON | 4.0 KB | as is |
+| `enriched_data/self_contradiction/sampled_posts.csv` | 17,000 | 2 | CSV | 606.5 KB | as is |
+| `enriched_data/self_contradiction/sampled_posts.json` | 17,000 | 2 | JSON | 988.3 KB | as is |
+| `enriched_data/eps_pi_samples/sampled_posts_2000.csv` | 12,000 | 2 | CSV | 427.8 KB | as is |
+| `enriched_data/eps_pi_samples/sampled_posts_2000.json` | 12,000 | 2 | JSON | 697.3 KB | as is |
 | `enriched_data/data_dictionary.csv`, `.json` | | | | | as is |
 
-**Row populations.** `tweets`: every enriched post (159,537). `comments`: the 876,857 enriched comments (135,275 real, 741,582 synthetic). `profiles`: the 35 accounts. `reference/entity_aliases`: the full curated alias table (297 rows, with review status). `reference/bertopic_topic_assignments`: the BERTopic group of each post (159,535 rows).
+**Row populations.** `tweets`: every enriched post (159,537). `comments`: the 876,857 enriched comments (135,275 real, 741,582 synthetic). `profiles`: the 35 accounts. `reference/entity_aliases`: the full curated alias table (297 rows, with review status). `reference/bertopic_topic_assignments`: the BERTopic group of each post (159,535 rows). `self_contradiction/self_contradiction_pairs`: the 513 retained Self-Contradiction pairs, 21 of them flagged `content_free`. `self_contradiction/self_contradiction_accounts`: the 35 accounts, 17 of them sample-qualified. `self_contradiction/sampled_posts`: the 1,000-post seeded sample of each of those 17 accounts. `eps_pi_samples/sampled_posts_2000`: the 2,000-post seeded sample of Engagement Patterns and Profile Influence for the 6 of the 13 sampled accounts whose sample can be regenerated.
 
 ## What is not in the enriched release, and why
 
@@ -262,6 +328,46 @@ Also published as `enriched_data/data_dictionary.csv` and `.json`. Sections: **2
 | `topic_id` | integer | -1 (outlier) or 0..230 | -1 to 230 | 0 | 2B Table 3; 2B §3.3.2; 2B §3.3.4 | BERTopic group of the post. Profile Influence aggregates per group, and Self-Contradiction forms candidate pairs within groups. |
 | `probability` | real | stored 0.0 on every row | 0.0 to 0.0 | 0 | 2B Table 3 | Assignment probability column as stored. It is 0.0 on all rows: no probability was recorded, and no field uses it. |
 | `assigned_at` | string (ISO 8601) | timestamp | values 2026-05-04T10:24:25.877157+00:00 | 0 | 2B Table 3 | Time the assignments were written (one run). |
+
+### `self_contradiction/self_contradiction_pairs`
+
+| Column | Type | Range | Observed | Nulls | Defined in | Description |
+|---|---|---|---|--:|---|---|
+| `pair_id` | integer | row id | 14741 to 15253 | 0 | 2B §3.3.4 | Identifier of the retained pair as stored. Rows are in stored order, the order the score sums them in. |
+| `handle` | string | X handle without @ |  | 0 | 2B §3.3.4 | Account whose two posts form the pair; joins profiles.handle. |
+| `tweet_a_id` | string (digits) | platform post id |  | 0 | 2B §3.3.4 | First post of the pair; joins tweets.tweet_id. |
+| `tweet_b_id` | string (digits) | platform post id |  | 0 | 2B §3.3.4 | Second post of the pair; joins tweets.tweet_id. |
+| `group_type` | string | topic, entity | values entity (53), topic (460) | 0 | 2B §3.3.4 | Candidate group the pair was formed in: a BERTopic group (topic) or a mention-handle group (entity). |
+| `group_key` | string |  |  | 0 | 2B §3.3.4 | The group: the BERTopic topic_id for a topic group, the mentioned handle for an entity group. |
+| `w_i` | real | 0.5 or 1.0 | values 0.5 (298), 1.0 (215) | 0 | 2B §3.3.4 | Pair weight w_i: 1.0 when the pair was formed in a mention-handle group or its posts share an alias-resolved named entity (approved alias rows), 0.5 otherwise. |
+| `p_i` | real | [0.75, 1] | 0.7500389814376831 to 0.9994400143623352 | 0 | 2B §3.3.4 | Contradiction probability p_con,i of the pair under the natural language inference model, as stored. |
+| `entity_bucket` | string | entity, topic_overlap_ge_1, topic_overlap_0 | values entity (53), topic_overlap_0 (298), topic_overlap_ge_1 (162) | 0 | 2B §3.3.4 | Weighting rule that applied: entity (mention-handle group, 1.0), topic_overlap_ge_1 (shared entity, 1.0), topic_overlap_0 (no shared entity, 0.5). |
+| `content_free` | integer | 0 or 1 | values 0 (492), 1 (21) | 0 | 2B §5.3; 2B §6 | 1 for the pairs whose two posts carry no words beyond a shortened link. They are included in the stored Self-Contradiction scores. |
+
+### `self_contradiction/self_contradiction_accounts`
+
+| Column | Type | Range | Observed | Nulls | Defined in | Description |
+|---|---|---|---|--:|---|---|
+| `handle` | string | X handle without @ |  | 0 | 2B §3.3.4 | Account; joins profiles.handle. |
+| `user_id` | string (digits) | platform user id |  | 0 | 2B §3.3.4 | X user identifier; joins profiles.user_id. |
+| `N` | integer | [0, inf) | 1 to 56613 | 0 | 2B §3.3.4 | N_enriched, the density denominator: the account's enriched posts (its rows in tweets). |
+| `sample_size` | integer | min(N, 1000) | 1 to 1000 | 0 | 2B §3.3.4 | Posts candidate construction drew pairs from: all N posts, or a seeded sample of 1,000 when N exceeds 1,000. |
+| `sample_qualified` | integer | 0 or 1 | values 0 (18), 1 (17) | 0 | 2B §5.3 | 1 when N exceeds 1,000, so pairs come from the seeded sample while the denominator is the full timeline. |
+| `retained_pairs` | integer | [0, inf) | 0 to 53 | 0 | 2B §3.3.4 | Rows of self_contradiction_pairs for the account. |
+
+### `self_contradiction/sampled_posts`
+
+| Column | Type | Range | Observed | Nulls | Defined in | Description |
+|---|---|---|---|--:|---|---|
+| `handle` | string | X handle without @ | 17 accounts, 1,000 posts each | 0 | 2B §3.3.4 | Sample-qualified account; joins self_contradiction_accounts.handle. |
+| `tweet_id` | string (digits) | platform post id |  | 0 | 2B §3.3.4 | A post in the account's seeded sample, regenerated as the run draws it (seed 42, 1,000 posts, ordered by created_at); the run did not record its sample. Joins tweets.tweet_id. |
+
+### `eps_pi_samples/sampled_posts_2000`
+
+| Column | Type | Range | Observed | Nulls | Defined in | Description |
+|---|---|---|---|--:|---|---|
+| `handle` | string | X handle without @ | 6 accounts, 2,000 posts each | 0 | 2B §3.3.1; 2B §3.3.2 | Sampled account; joins profiles.handle. The 6 of the 13 accounts above 2,000 posts whose posts have no tied created_at, so the run's draw is regenerated exactly. |
+| `tweet_id` | string (digits) | platform post id |  | 0 | 2B §3.3.1; 2B §3.3.2 | A post in the account's seeded sample, regenerated as the run draws it (seed 42, 2,000 posts, ordered by created_at); Engagement Patterns and Profile Influence replayed over it reproduce the stored values exactly. Joins tweets.tweet_id. |
 
 ## Citation
 

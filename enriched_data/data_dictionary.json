@@ -628,5 +628,205 @@
     "nulls": "0",
     "defined_in": "2B Table 3",
     "description": "Time the assignments were written (one run)."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "pair_id",
+    "type": "integer",
+    "range": "row id",
+    "observed": "14741 to 15253",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Identifier of the retained pair as stored. Rows are in stored order, the order the score sums them in."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "handle",
+    "type": "string",
+    "range": "X handle without @",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Account whose two posts form the pair; joins profiles.handle."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "tweet_a_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "First post of the pair; joins tweets.tweet_id."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "tweet_b_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Second post of the pair; joins tweets.tweet_id."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "group_type",
+    "type": "string",
+    "range": "topic, entity",
+    "observed": "values entity (53), topic (460)",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Candidate group the pair was formed in: a BERTopic group (topic) or a mention-handle group (entity)."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "group_key",
+    "type": "string",
+    "range": "",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "The group: the BERTopic topic_id for a topic group, the mentioned handle for an entity group."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "w_i",
+    "type": "real",
+    "range": "0.5 or 1.0",
+    "observed": "values 0.5 (298), 1.0 (215)",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Pair weight w_i: 1.0 when the pair was formed in a mention-handle group or its posts share an alias-resolved named entity (approved alias rows), 0.5 otherwise."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "p_i",
+    "type": "real",
+    "range": "[0.75, 1]",
+    "observed": "0.7500389814376831 to 0.9994400143623352",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Contradiction probability p_con,i of the pair under the natural language inference model, as stored."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "entity_bucket",
+    "type": "string",
+    "range": "entity, topic_overlap_ge_1, topic_overlap_0",
+    "observed": "values entity (53), topic_overlap_0 (298), topic_overlap_ge_1 (162)",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Weighting rule that applied: entity (mention-handle group, 1.0), topic_overlap_ge_1 (shared entity, 1.0), topic_overlap_0 (no shared entity, 0.5)."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_pairs",
+    "column": "content_free",
+    "type": "integer",
+    "range": "0 or 1",
+    "observed": "values 0 (492), 1 (21)",
+    "nulls": "0",
+    "defined_in": "2B §5.3; 2B §6",
+    "description": "1 for the pairs whose two posts carry no words beyond a shortened link. They are included in the stored Self-Contradiction scores."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_accounts",
+    "column": "handle",
+    "type": "string",
+    "range": "X handle without @",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Account; joins profiles.handle."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_accounts",
+    "column": "user_id",
+    "type": "string (digits)",
+    "range": "platform user id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "X user identifier; joins profiles.user_id."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_accounts",
+    "column": "N",
+    "type": "integer",
+    "range": "[0, inf)",
+    "observed": "1 to 56613",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "N_enriched, the density denominator: the account's enriched posts (its rows in tweets)."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_accounts",
+    "column": "sample_size",
+    "type": "integer",
+    "range": "min(N, 1000)",
+    "observed": "1 to 1000",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Posts candidate construction drew pairs from: all N posts, or a seeded sample of 1,000 when N exceeds 1,000."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_accounts",
+    "column": "sample_qualified",
+    "type": "integer",
+    "range": "0 or 1",
+    "observed": "values 0 (18), 1 (17)",
+    "nulls": "0",
+    "defined_in": "2B §5.3",
+    "description": "1 when N exceeds 1,000, so pairs come from the seeded sample while the denominator is the full timeline."
+  },
+  {
+    "file": "self_contradiction/self_contradiction_accounts",
+    "column": "retained_pairs",
+    "type": "integer",
+    "range": "[0, inf)",
+    "observed": "0 to 53",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Rows of self_contradiction_pairs for the account."
+  },
+  {
+    "file": "self_contradiction/sampled_posts",
+    "column": "handle",
+    "type": "string",
+    "range": "X handle without @",
+    "observed": "17 accounts, 1,000 posts each",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "Sample-qualified account; joins self_contradiction_accounts.handle."
+  },
+  {
+    "file": "self_contradiction/sampled_posts",
+    "column": "tweet_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.4",
+    "description": "A post in the account's seeded sample, regenerated as the run draws it (seed 42, 1,000 posts, ordered by created_at); the run did not record its sample. Joins tweets.tweet_id."
+  },
+  {
+    "file": "eps_pi_samples/sampled_posts_2000",
+    "column": "handle",
+    "type": "string",
+    "range": "X handle without @",
+    "observed": "6 accounts, 2,000 posts each",
+    "nulls": "0",
+    "defined_in": "2B §3.3.1; 2B §3.3.2",
+    "description": "Sampled account; joins profiles.handle. The 6 of the 13 accounts above 2,000 posts whose posts have no tied created_at, so the run's draw is regenerated exactly."
+  },
+  {
+    "file": "eps_pi_samples/sampled_posts_2000",
+    "column": "tweet_id",
+    "type": "string (digits)",
+    "range": "platform post id",
+    "observed": "",
+    "nulls": "0",
+    "defined_in": "2B §3.3.1; 2B §3.3.2",
+    "description": "A post in the account's seeded sample, regenerated as the run draws it (seed 42, 2,000 posts, ordered by created_at); Engagement Patterns and Profile Influence replayed over it reproduce the stored values exactly. Joins tweets.tweet_id."
   }
 ]
